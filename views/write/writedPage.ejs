@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/write/writedPage.css" />
+    <script defer src="/js/write/writedPage.js"></script>
+  </head>
+  <body>
+    <div class="detail-container">
+      <div class="main">
+          <!-- 제목 -->
+          <div class="title"><h2><%=title%></h2></div>
+          <!-- 작성자 정보 및 저장, 수정, 삭제 버튼-->
+          <div class="editBar">
+            <div class="top">
+                <div class="left">
+                  <div class="profile">
+                    <% if(profileImg != null){ %>
+                      <img src="<%=profileImg%>" class="userImg">
+                     <%}else{%>
+                      <img src="/assets/Vector.png" class="userImg" />
+                      <%}%>
+                  </div>
+                  <div>
+                    <div class="nickname"><p><%=nicName%></p></div>
+                    <div class="date"><p><%= new Date(date).toLocaleDateString() %></p></div>
+                  </div>
+                </div>
+                <div class="right">
+                  <!-- 북마크 저장-->
+                   <div class="bookMark" id="bookmark"><i class="fa-regular fa-bookmark fa-2x"></i></div> 
+                  <!-- 수정 삭제 바 -->
+                    <%if (userId == LoginuserId) {%>
+                    <div class="ellipsis"><i class="fa-solid fa-ellipsis-vertical fa-2x" id="ellipsis"></i></div>
+                    <%}%> 
+                </div>
+              </div>
+                <div class="edit" id="buttons">
+                  <div>
+                    <a href="../write/viewUpdatePage?postId=<%= postId %>">
+                    <button><h2 class="ed">수정</h2></button>
+                    </a>
+                  </div>
+                  <div><button onclick="eraseModal2('<%= postId %>')"><h2 class="del">삭제</h2></button></div>
+              </div>
+            </div>
+            
+
+            <!-- 카테고리 -->
+            <div class="menu">
+              <h2 class="sub">카테고리</h2><h2><%=category%></h2>
+            </div>   
+            <!-- 메뉴 -->
+            <div class="menu">
+              <h2 class="sub">메뉴</h2><h2><%=menu%></h2>              
+            </div>
+            <!-- 재료 -->
+            <div class="menu">
+              <h2 class="sub">재료</h2><h2>
+               <% for(let i=0; i<ingredientArr.length; i++){ %>
+                 <% if (Array.isArray(ingredientArr[i])) { %>
+                     <% if (ingredientArr[i].length > 1) { %>
+                         <%= ingredientArr[i][0].dataValues.ingredientName %>
+                     <% } else { %>
+                         <%= ingredientArr[i][0].dataValues.ingredientName %>
+                     <% } %>
+                 <% } else { %>
+                     <%= ingredientArr[i].dataValues.ingredientName %>
+                 <% } %>
+             <% } %>
+             </h2>
+            </div>
+
+            <!-- 게시글 내용-->
+            <div class="text">
+              <%-content%>
+            </div>
+
+              <!-- 게시물 하단 -->
+              <div class="comment-container">
+                <div>
+                  <!-- 댓글 개수 -->
+                  <div class="count">댓글 <%=comment.length%>개</div>            
+                  <!-- 조회수 -->
+                  <div class="all-writed">
+                    <div class="writted-num">조회수 <%= viewCount %></div>
+                  </div>
+                </div> 
+                <!-- 댓글 박스 -->
+                 <div class="comment-box">
+                  <% if (typeof comment!== 'undefined' && comment !== null) { %>
+                    <!-- 모든 코멘트 보여주기 -->
+                    <div>
+                      <div>
+                        <%for(let i=0; i<comment.length; i++){%>
+                        <div class="allComment">
+                          <%const commentId = comment[i].dataValues.commentId%>
+                          <div class="comment-main">
+                            <div class="inner-box">
+                                <div id="img">
+                                  <% if (commentUserImg && commentUserImg[i] && commentUserImg[i].length != 0) { %>
+                                    <img src="<%= commentUserImg[i] %>" class="userimg"/>
+                                <% } else { %>
+                                    <img src="/assets/Vector.png" class="userimg" />
+                                <% } %>
+                                </div>
+                                 <div class="nic"><%=commentUser[i]%></div>
+                              <!-- 코멘트 내용 -->
+                              <div class="inner-comment"><%=comment[i].dataValues.content%></div>
+                              <!-- 코멘트 수정 삭제 버튼-->
+                              <div class="alt" id="alt-<%= commentId %>">
+                                <div class="alter-box">
+                                  <% if(LoginuserId==comment[i].dataValues.userId){ %>
+                                  <div class="correction" id="correction-<%=commentId%>">
+                                    <!-- 삭제하기 버튼 -->
+                                    <div class="su er" onclick="eraseModal('<%= commentId %>')"> <i class="fa-solid fa-x"></i></div>
+                                  </div>
+                                  <% } %>
+                                </div>
+                              </div>
+                              
+                            </div>
+                          </div>
+                        </div>
+          
+                        <div class="modal" id="modal-<%=commentId%>">
+                          <div class="modal_body">
+                            <p>정말 삭제하시겠습니까?</p>
+                              <form action="/write/commentDelete" method="POST" name="commentDelete">
+                              <input type="hidden" name="commentId" value="<%= commentId %>">
+                              <input type="hidden" name="commentUserId" value="<%=comment[i].dataValues.userId %>">
+                              <input type="hidden" name="postId" value="<%=postId%>">
+                              <button class="btn-ok" type="submit" >확인</button>
+                            </form>
+                            <button class="btn-no" onclick="cancellation('<%= commentId %>')">취소</button>
+                          </div>
+                        </div>
+                        <div class="modal2" id="modal2-<%=postId%>">
+                          <div class="modal_body2">
+                            <p>정말 삭제하시겠습니까?</p>
+                              <form action="../write/deletePost" method="POST" name="commentDelete">
+                              <input type="hidden" name="postId" value="<%= postId %>">
+                              <button class="btn-ok" type="submit">확인</button>
+                            </form>
+                            <button class="btn-no2" onclick="cancellation2()">취소</button>
+                          </div>
+                        </div>
+  
+                        <%}%>
+                      </div>
+
+                    </div>
+                    
+                    <!-- 댓글 입력-->
+                    <form action="../write/postCommentPage" method="POST" name="comment">
+                      <input type="hidden" name="postId" value="<%= postId %>">
+                      <div class="comment">
+                        <div>
+                            <input
+                              type="text"
+                              class="input-box"
+                              placeholder="댓글을 입력하세요"
+                              required
+                              name="comment"
+                            />
+                            <button class="input-btn" onclick="return checkLogin('<%= LoginuserId %>')" type="submit">등록</button>
+                        </div>
+                      </div>
+                   </form>
+                    
+                    <%}%>
+                
+              </div>
+            </div>
+  
+          </div>
+        </div>
+        </div>
+      </div>    
+
+  </body>
+</html>
