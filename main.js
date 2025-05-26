@@ -1,4 +1,3 @@
-//test25
 const express = require("express"),
   app = express();
 (layouts = require("express-ejs-layouts")),
@@ -17,6 +16,8 @@ const User = db.user;
   (multerGoogleStorage = require("multer-google-storage")),
   (cors = require("cors"));
 
+require("dotenv").config();
+
 // Redis 관련 모듈 추가
 const Redis = require("redis");
 const { RedisStore } = require("connect-redis");
@@ -31,7 +32,7 @@ redisClient.connect().catch(console.error);
 // cors 오류 방지 설정
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://localhost:" + process.env.PORT,
   })
 );
 
@@ -120,31 +121,31 @@ app.use((req, res, next) => {
 });
 
 // Router
-const homeRouter = require("./routers/homeRouter.js");
+// const homeRouter = require("./routers/homeRouter.js");
+// const joinFundingRouter = require("./routers/joinFundingRouter.js");
+// const searchRouter = require("./routers/searchRouter.js");
+// const createFundingRouter = require("./routers/createFundingRouter.js");
+// const authRouter = require("./routers/authRouter");
 const postRouter = require("./routers/postRouter.js");
-const joinFundingRouter = require("./routers/joinFundingRouter.js");
 const writeRouter = require("./routers/writeRouter.js");
-const searchRouter = require("./routers/searchRouter.js");
-const createFundingRouter = require("./routers/createFundingRouter.js");
-const authRouter = require("./routers/authRouter");
 
 // home 접근
-app.use("/", homeRouter);
-// search 접근
-app.use("/search", searchRouter);
+// app.use("/", homeRouter);
+// // search 접근
+// app.use("/search", searchRouter);
+// // 로그인 및 사용자 관리 접근
+// app.use("/auth", authRouter);
+// // createFundingRouter 접근
+// app.use("/createfundingPage", createFundingRouter);
+// // joinFundingRouter 접근
+// app.use("/joinfundingPage", joinFundingRouter);
 // post 접근
 app.use("/posts", postRouter);
 //write 접근
 app.use("/write", writeRouter);
-// 로그인 및 사용자 관리 접근
-app.use("/auth", authRouter);
-// createFundingRouter 접근
-app.use("/createfundingPage", createFundingRouter);
-// joinFundingRouter 접근
-app.use("/joinfundingPage", joinFundingRouter);
 
 // 서버 실행
-app.set("port", 3000);
+app.set("port", process.env.PORT);
 app.listen(app.get("port"), "0.0.0.0", () => {
   console.log(`Server running at http://localhost:${app.get("port")}`);
 });
