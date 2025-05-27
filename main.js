@@ -25,7 +25,7 @@ const { RedisStore } = require("connect-redis");
 // Redis 클라이언트 생성
 const redisClient = Redis.createClient({
   legacyMode: true, // Redis v4를 사용하는 경우, connect-redis 호환을 위해 legacy 모드 설정
-  url: "redis://localhost:6379", // 실제 Redis 서버 주소 및 포트로 바꾸세요
+  url: "redis://redis:6379", // 실제 Redis 서버 컨테이너와 일치해야 됨
 });
 redisClient.connect().catch(console.error);
 
