@@ -1,5 +1,12 @@
 const axios = require('axios');
 
+const db = require("../models/index"),
+  Post = db.post,
+  Comment = db.comment,
+  Op = db.Sequelize.Op;
+
+const { Sequelize, sequelize } = require('../models');
+
 // 유저 서비스의 주소
 const USER_SERVICE_URL = 'http://user-service:3001'; // 실제 주소 필요
 
@@ -21,7 +28,7 @@ exports.getUserInfo = async (req, res) => {
 exports.getMyPosts = async (req, res) => {
   const { userId } = req.params;
   try {
-    const posts = await post.findAll({
+    const posts = await Post.findAll({
       where: { userId },
       order: [["date", "DESC"]],
     });
@@ -36,7 +43,7 @@ exports.getMyPosts = async (req, res) => {
 exports.getMyComments = async (req, res) => {
   const { userId } = req.params;
   try {
-    const comments = await comment.findAll({
+    const comments = await Comment.findAll({
       where: { userId },
       order: [["createdAt", "DESC"]],
     });
@@ -51,7 +58,7 @@ exports.getMyComments = async (req, res) => {
 exports.getSavedPosts = async (req, res) => {
   const { userId } = req.params;
   try {
-    const savedPosts = await post.findAll({
+    const savedPosts = await Post.findAll({
       include: [
         {
           model: user,
