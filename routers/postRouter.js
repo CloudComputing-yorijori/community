@@ -3,8 +3,6 @@ const router = express.Router();
 db = require("../models/index");
 const postController = require("../controllers/postController");
 const postApiController = require('../controllers/postApiController');
-//postApi
-router.get('/:postId/author', postApiController.getPostUserInfo);
 
 //postApi
 router.get('/:postId/author', postApiController.getPostUserInfo);
