@@ -128,7 +128,8 @@ app.use((req, res, next) => {
 // const authRouter = require("./routers/authRouter");
 const postRouter = require("./routers/postRouter.js");
 const writeRouter = require("./routers/writeRouter.js");
-
+const userRouter = require("./routers/userRouter.js");
+const imageRouter = require("./routers/imageRouter.js");
 // home 접근
 // app.use("/", homeRouter);
 // // search 접근
@@ -143,6 +144,8 @@ const writeRouter = require("./routers/writeRouter.js");
 app.use("/posts", postRouter);
 //write 접근
 app.use("/write", writeRouter);
+app.use("/user", userRouter);
+app.use("/image", imageRouter);
 
 // 서버 실행
 app.set("port", process.env.PORT);
