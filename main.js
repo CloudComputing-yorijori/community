@@ -144,7 +144,8 @@ const imageRouter = require("./routers/imageRouter.js");
 app.use("/posts", postRouter);
 //write 접근
 app.use("/write", writeRouter);
-
+app.use("/user", userRouter);
+app.use("/image", imageRouter);
 
 // 서버 실행
 app.set("port", process.env.PORT);
