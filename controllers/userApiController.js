@@ -25,12 +25,6 @@ exports.getMyPosts = async (req, res) => {
       where: { userId },
       order: [["date", "DESC"]],
     });
-
-    // 다른 서비스로 전송
-    await axios.post(`${USER_SERVICE_URL}/users/${userId}/posts`, {
-      userId,
-      posts,  // posts를 보내는 것
-    });
     
     res.json(posts);
   } catch (error) {
@@ -45,12 +39,6 @@ exports.getMyComments = async (req, res) => {
     const comments = await comment.findAll({
       where: { userId },
       order: [["createdAt", "DESC"]],
-    });
-
-    // 다른 서비스로 전송
-    await axios.post(`${USER_SERVICE_URL}/users/${userId}/comments`, {
-      userId,
-      comments,  // comments를 보내는 것
     });
     
     res.json(comments);  // 댓글 목록을 반환
@@ -72,12 +60,6 @@ exports.getSavedPosts = async (req, res) => {
           attributes: [],
         },
       ],
-    });
-
-    // 다른 서비스로 전송
-    await axios.post(`${USER_SERVICE_URL}/users/${userId}/saved-posts`, {
-      userId,
-      savedPosts,  // 저장된 게시글을 보내는 것
     });
     
     res.json(savedPosts);  // 저장된 게시글 목록을 반환
