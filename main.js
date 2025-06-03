@@ -43,8 +43,8 @@ app.use(bodyParser.json());
 //파일 업로드를 위한 multer 설정
 const upload = multer({
   storage: multerGoogleStorage.storageEngine({
-    bucket: "yorizori_post_img",
-    projectId: "burnished-core-422015-g1",
+    bucket: "myccbucket2025",
+    projectId: "cloudcomputing-455207",
     keyFilename: "secure/burnished-core-422015-g1-f3b170868aa8.json",
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기 제한 (예: 5MB)
@@ -122,9 +122,9 @@ app.use((req, res, next) => {
 
 // Router
 // const homeRouter = require("./routers/homeRouter.js");
-// const joinFundingRouter = require("./routers/joinFundingRouter.js");
+// const joinfundingRouter = require("./routers/joinfundingRouter.js");
 // const searchRouter = require("./routers/searchRouter.js");
-// const createFundingRouter = require("./routers/createFundingRouter.js");
+// const createfundingRouter = require("./routers/createfundingRouter.js");
 // const authRouter = require("./routers/authRouter");
 const postRouter = require("./routers/postRouter.js");
 const writeRouter = require("./routers/writeRouter.js");
@@ -136,10 +136,10 @@ const userRouter = require("./routers/userApiRouter.js");
 // app.use("/search", searchRouter);
 // // 로그인 및 사용자 관리 접근
 // app.use("/auth", authRouter);
-// // createFundingRouter 접근
-// app.use("/createfundingPage", createFundingRouter);
-// // joinFundingRouter 접근
-// app.use("/joinfundingPage", joinFundingRouter);
+// // createfundingRouter 접근
+// app.use("/createfundingPage", createfundingRouter);
+// // joinfundingRouter 접근
+// app.use("/joinfundingPage", joinfundingRouter);
 // post 접근
 app.use("/posts", postRouter);
 //write 접근

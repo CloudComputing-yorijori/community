@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Subcategory Navigation Bar</title>
+    <link rel="stylesheet" href="/css/recipe/styles.css">
+</head>
+<body>
+    <div class="subcategory-bar">
+        <% 
+        var subcategoriesMap = {
+            'meat': {'beef': '소고기', 'pork': '돼지고기', 'chicken': '닭고기', 'duck': '오리고기', 'sheep': '양고기', 'neck': '목살', 'tenderloin': '안심'},
+            'seafood': {'anchovy': '멸치', 'shrimp': '새우', 'squid': '오징어', 'octopus': '문어', 'mackerel': '고등어', 'tuna': '참치', 'salmon': '연어', 'shellfish': '조개', 'oyster': '굴', 'crab': '게', 'lobster': '바닷가재', 'clams': '바지락', 'scallops': '가리비', 'sardine': '정어리', 'eel': '장어'},
+            'vegetable': {'cabbage': '배추', 'lettuce': '상추', 'carrot': '당근', 'broccoli': '브로콜리', 'potato': '감자', 'sweet_potato': '고구마', 'cucumber': '오이', 'pumpkin': '호박', 'scallion': '파', 'bell_pepper': '피망', 'onion': '양파', 'garlic': '마늘', 'ginger': '생강', 'eggplant': '가지'},
+            'fruit': {'apple': '사과', 'pear': '배', 'banana': '바나나', 'strawberry': '딸기', 'blueberry': '블루베리', 'orange': '오렌지', 'lemon': '레몬', 'grape': '포도', 'peach': '복숭아', 'grapefruit': '자몽', 'kiwi': '키위', 'mango': '망고', 'pineapple': '파인애플', 'pomegranate': '석류', 'watermelon': '수박'},
+            'eggs_dairy': {'egg': '달걀', 'milk': '우유', 'cheese': '치즈', 'butter': '버터', 'yogurt': '요구르트', 'cream': '크림', 'icecream': '아이스크림'},
+            'source': {'soy_sauce': '간장', 'doenjang': '된장', 'gochujang': '고추장', 'salt': '소금', 'sugar': '설탕', 'vinegar': '식초', 'sesame_oil': '참기름', 'ketchup': '케첩', 'mayonnaise': '마요네즈', 'tartar_sauce': '타르타르 소스', 'honey': '꿀', 'mustard': '머스타드', 'chili_sauce': '칠리 소스', 'soybean_paste': '된장', 'fish_sauce': '액젓'},
+            'korean': {'kimchi_stew': '김치찌개', 'doenjang_stew': '된장찌개', 'kimchi': '김치', 'bibimbap': '비빔밥', 'bulgogi': '불고기', 'japchae': '잡채', 'tteokbokki': '떡볶이', 'galbitang': '갈비탕', 'samgyetang': '삼계탕', 'naengmyeon': '냉면', 'gimbap': '김밥', 'sundubu_jjigae': '순두부찌개', 'bossam': '보쌈'},
+            'chinese': {'jjajangmyeon': '짜장면', 'jjamppong': '짬뽕', 'tangsuyuk': '탕수육', 'ganponggi': '깐풍기', 'mapo_tofu': '마파두부', 'guobaorou': '꿔바로우', 'hotpot': '마라탕'},
+            'japanese': {'sushi': '스시', 'gyudon': '규동', 'ramen': '라멘', 'tonkatsu': '돈카츠', 'udon': '우동', 'donburi': '돈부리', 'katsudon': '가츠동'},
+            'western': {'steak': '스테이크', 'pasta': '파스타', 'pizza': '피자', 'risotto': '리조또', 'salad': '샐러드', 'sandwich': '샌드위치', 'soup': '스프'},
+            'dessert': {'cake': '케이크', 'pudding': '푸딩', 'ice_cream': '아이스크림', 'pie': '파이', 'cookies': '쿠키', 'brownies': '브라우니', 'cheesecake': '치즈케이크', 'macaron': '마카롱', 'tart': '타르트', 'eclair': '에클레어', 'muffin': '머핀', 'panna_cotta': '판나코타', 'gelato': '젤라또', 'churros': '츄러스', 'sorbet': '소르베'},
+            'mushroom': {'shiitake': '표고버섯', 'enoki': '팽이버섯', 'matsutake': '송이버섯', 'button': '양송이버섯', 'oyster': '느타리버섯', 'king_oyster': '새송이버섯', 'white_truffle': '화이트트러플'},
+            'beans_nuts': {'soybeans': '대두', 'red_beans': '팥', 'green_beans': '녹두', 'chickpeas': '병아리콩', 'black_beans': '검은콩', 'kidney_beans': '강낭콩', 'peanuts': '땅콩', 'almonds': '아몬드', 'walnuts': '호두', 'cashews': '캐슈넛', 'pistachios': '피스타치오', 'hazelnuts': '헤이즐넛', 'macadamia': '마카다미아', 'pecans': '피칸', 'brazil_nuts': '브라질너트'}
+        };
+        
+        var currentCategory = category;
+        var subcategories = subcategoriesMap[currentCategory] || {};
+        %>
+        
+        <!-- "전체" 버튼을 항상 표시 -->
+        <button onclick="redirectToSubCategory('all')" class="<%= currentCategory === 'all' ? 'active' : '' %>">전체</button>
+    
+        <!-- 동적으로 생성된 세부 카테고리 버튼 -->
+        <% Object.keys(subcategories).forEach(function(subcategory) { %>
+            <button onclick="redirectToSubCategory('<%= subcategory %>')" class="<%= currentCategory === subcategory ? 'active' : '' %>">
+                <%= subcategories[subcategory] %>
+            </button>
+        <% }); %>
+    </div>
+    <script>
+        function redirectToSubCategory(subcategory) {
+            var category = '<%= category %>'; // 현재 선택된 메인 카테고리
+            var newUrl = '/posts/' + encodeURIComponent(category) + '/' + encodeURIComponent(subcategory);
+            window.location.href = newUrl;
+        }
+    </script>
+</body>
+</html>

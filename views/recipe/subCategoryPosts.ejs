@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= category %> - <%= subcategory %> Posts</title>
+    <link rel="stylesheet" href="/css/recipe/styles.css">
+    <link rel="stylesheet" href="/css/recipe/searchResult.css">
+</head>
+
+<body>
+    <h1><%= category %> posts</h1>
+    
+    <%- include('subCategoryBar', { category: category }); %>
+
+    <!-- 카테고리 선택 결과 컨테이너 박스 -->
+    <div id="container">
+        <div id="side-bar"></div>
+        
+        <div id="searchResult">
+            <% if (posts.length > 0) { %>
+                <h1 class="title">총 '<span id="title"><%= totalNum %></span>'개의 레시피가 있습니다</h1>
+                <hr id="hr-top"> <!-- 수평선 -->
+                
+                <!-- 정렬 순서 카테고리 -->
+                <div class="sort-by">
+                    <a href="?sort=popularity" class="sort-method <%= sort === 'popularity' || !sort ? 'active' : '' %>">인기순</a>
+                    <div id="ver"></div>
+                    <a href="?sort=latest" class="sort-method <%= sort === 'latest' ? 'active' : '' %>">최신순</a>
+                    <div id="ver"></div>
+                    <a href="?sort=oldest" class="sort-method <%= sort === 'oldest' ? 'active' : '' %>">과거순</a>
+                    <div id="ver"></div>
+                    <a href="?sort=comments" class="sort-method <%= sort === 'comments' ? 'active' : '' %>">댓글 많은 순</a>
+                </div>
+                <hr id="hr-bottom"> <!-- 수평선 -->
+
+                <div class="list-group">
+                    <!-- 검색 결과 개수 만큼 post 보여줌(썸네일 사진, 제목, 주재료) -->
+                    <% posts.forEach(post => { %>
+                        <div class="recipe-card" data-post-id="<%=post.postId%>">
+                            <% if (post.firstImage) { %>
+                                <img src="<%= post.firstImage %>" alt="postImage" class="recipe-image">
+                            <% } %> 
+                            <a href="/write/getWritedPage?postId=<%=post.postId%>">
+                                <h2><%= post.title %></h2>
+                            </a>
+                            <button
+                                class="bookmark-button <%= savedPostIds.includes(post.postId) ? 'bookmark-saved' : 'bookmark-not-saved' %>" 
+                                id="btn-<%= post.postId %>" 
+                                onclick="saveBookmark('<%= post.postId %>');">
+                            </button>
+                            <p>주재료: <%= post.ingredients %></p>
+                        </div>
+                    <% }); %>
+                </div>
+                
+                <!-- 페이징 넘버 -->
+                <div class="pagination">
+                    <% for (let page = 1; page <= pageNum; page++) { %>
+                        <a href="?page=<%= page %>" class="<%= currentPage === page ? 'active' : '' %>"><%= page %></a>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div id="no-result">
+                    <h1>세부 카테고리 결과가 없습니다</h1>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <input type="hidden" id="userId" value="<%= user ? user.userId : "" %>">
+
+    <script src="/js/recipe/bookmark.js"></script>
+    <script src="/js/recipe/view.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= category %> Posts</title>
+    <link rel="stylesheet" href="/css/styles.css"> 
+    <link rel="stylesheet" href="/css/recipe/searchResult.css">
+</head>
+<body>
+    <% var categoryNames = {
+        'meat': '육류',
+        'seafood': '해물류',
+        'vegetable': '채소',
+        'fruit': '과일',
+        'eggs_dairy': '달걀/유제품',
+        'source': '양념/소스',
+        'korean': '한식',
+        'chinese': '중식',
+        'japanese': '일식',
+        'western': '양식',
+        'dessert': '디저트',
+        'mushroom': '버섯류',
+        'beans_nuts': '콩/견과류'
+    };
+    
+    var categoryKorean = categoryNames[category] || category; %>
+    <h1><%= categoryKorean %></h1>
+
+    <%- include('subCategoryBar', { category: category }); %>
+
+    <!-- 카테고리 선택 결과 컨테이너 박스 -->
+    <div id="container">
+        <div id="side-bar"></div>
+        
+        <div id="searchResult">
+            <% if (posts.length > 0) { %>
+                <h1 class="title">총 '<span id="title"><%= totalNum %></span>'개의 레시피가 있습니다</h1>
+            <hr id="hr-top"> <!-- 수평선 -->
+            <!-- 정렬 순서 카테고리 -->
+            <div class="sort-by">
+                <a href="?sort=popularity" class="sort-method <%= sort === 'popularity' || !sort ? 'active' : '' %>">인기순</a>
+                <div id="ver"></div>
+                <a href="?sort=latest" class="sort-method <%= sort === 'latest' ? 'active' : '' %>">최신순</a>
+                <div id="ver"></div>
+                <a href="?sort=oldest" class="sort-method <%= sort === 'oldest' ? 'active' : '' %>">과거순</a>
+                <div id="ver"></div>
+                <a href="?sort=comments" class="sort-method <%= sort === 'comments' ? 'active' : '' %>">댓글 많은 순</a>
+            </div>
+            <hr id="hr-bottom"> <!-- 수평선 -->
+
+            <div class="list-group">
+                <!-- 검색 결과 개수 만큼 post 보여줌(썸네일 사진, 제목, 주재료) -->
+                <% if(posts.length > 0) { %>                    
+                    <% posts.forEach(post => { %>
+                        <div class="recipe-card" data-post-id="<%=post.postId%>">
+                            <% if (post.images && post.images.length > 0) { %>
+                                <% const firstImage = post.images[0]; %>
+                                <img src="<%= firstImage.imageUrl %>" alt="postImage" class="recipe-image">
+                            <% } %> 
+                            <div class="btn-position">
+                            <a href="/write/getWritedPage?postId=<%=post.postId%>">
+                                <h2><%= post.title %></h2>
+                            </a>           
+                            <button
+                                class="bookmark-button <%= savedPostIds.includes(post.postId) ? 'bookmark-saved' : 'bookmark-not-saved' %>" 
+                                id="btn-<%= post.postId %>" 
+                                onclick="saveBookmark('<%= post.postId %>');">
+                            </button>
+                        </div>       
+                            <p>주재료: <%= post.ingredients %></p>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p>No posts available for this category.</p>
+                <% } %>
+            </div>
+            <!--페이징 넘버-->
+            <div class="pagination">
+                <% for (let page = 1; page <= pageNum; page++) { %>
+                    <a href="?page=<%= page %>" class="<%= currentPage === page ? 'active' : '' %>"><%= page %></a>
+                <% } %>
+            </div>
+            <% } else { %>
+                <div id="no-result"><h1> 카테고리 결과가 없습니다</h1></div>
+            <% } %>
+        </div>
+        <div id="side-bar">    
+            <div class="goto-funding">
+                <% if (loggedIn) { %>
+                <!-- 로그인한 사용자는 펀딩 페이지로 이동-->
+                <a href="/joinfundingPage/fundingPage">
+                <% } else { %>
+                <!-- 로그인하지 않은 사용자는 로그인 페이지로 이동-->
+                <a href="/auth/login"  onclick="redirectToLogin();">
+                <% } %>
+                <img src="/assets/image.png" class="funding-icon">
+                <p class="funding-txt">펀딩하러 가기</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="userId" value="<%= user ? user.userId : "" %>">
+
+    <script src="/js/recipe/bookmark.js"></script>
+
+    <script src="/js/recipe/view.js"></script>
+</body>
+</html>
