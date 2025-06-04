@@ -121,30 +121,15 @@ app.use((req, res, next) => {
 });
 
 // Router
-// const homeRouter = require("./routers/homeRouter.js");
-// const joinfundingRouter = require("./routers/joinfundingRouter.js");
-// const searchRouter = require("./routers/searchRouter.js");
-// const createfundingRouter = require("./routers/createfundingRouter.js");
-// const authRouter = require("./routers/authRouter");
 const postRouter = require("./routers/postRouter.js");
 const writeRouter = require("./routers/writeRouter.js");
-const userRouter = require("./routers/userApiRouter.js");
-//const imageRouter = require("./routers/imageRouter.js");
-// home 접근
-// app.use("/", homeRouter);
-// // search 접근
-// app.use("/search", searchRouter);
-// // 로그인 및 사용자 관리 접근
-// app.use("/auth", authRouter);
-// // createfundingRouter 접근
-// app.use("/createfundingPage", createfundingRouter);
-// // joinfundingRouter 접근
-// app.use("/joinfundingPage", joinfundingRouter);
+const apiRouter = require("./routers/apiRouter.js");
+
 // post 접근
 app.use("/posts", postRouter);
 //write 접근
 app.use("/write", writeRouter);
-app.use("/user-api", userRouter);
+app.use("/community-api", apiRouter);
 //app.use("/image", imageRouter);
 
 // 서버 실행
