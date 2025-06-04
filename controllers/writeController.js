@@ -1,5 +1,6 @@
 const { render } = require("ejs");
 const { Where } = require("sequelize/lib/utils");
+const axios = require("axios");
 
 const db = require("../models"),
   Ingredient = db.ingredient,
@@ -254,13 +255,19 @@ exports.getWritedPage = async (req, res) => {
     }
 
     //postId로 post 닉네임 찾기
-    let nic = await User.findAll({
-      where: {
-        userId: {
-          [Op.like]: `%${postvalue[0].dataValues.userId}%`,
-        },
-      },
-    });
+    // let nic = await User.findAll({
+    //   where: {
+    //     userId: {
+    //       [Op.like]: `%${postvalue[0].dataValues.userId}%`,
+    //     },
+    //   },
+    // });
+    const nicUserId = postvalue[0].dataValues.userId;
+    const response = await axios.get(
+      `http://user:3000/user-api/user/${nicUserId}`
+    );
+    const nic = response.data;
+    console.log("Query Results:", nic);
 
     //postId로 해당게시물 commet 찾기
     let comment = [];
@@ -275,29 +282,36 @@ exports.getWritedPage = async (req, res) => {
     //comment쓴 유저 객체
     let commentUserJson = [];
     for (let i = 0; i < comment.length; i++) {
-      commentUserJson[i] = await User.findAll({
-        where: {
-          userId: {
-            [Op.like]: `%${comment[i].dataValues.userId}%`,
-          },
-        },
-      });
+      const commentUserId = comment[i].dataValues.userId;
+      const response = await axios.get(
+        `http://user:3000/user-api/user/${commentUserId}`
+      );
+      const user = response.data;
+      console.log("Query Results:", user);
+      commentUserJson[i] = user;
+      // commentUserJson[i] = await User.findAll({
+      //   where: {
+      //     userId: {
+      //       [Op.like]: `%${comment[i].dataValues.userId}%`,
+      //     },
+      //   },
+      // });
     }
     //찾은 user객체에서 닉네임 뽑기
     let commentUser = [];
     for (let i = 0; i < commentUserJson.length; i++) {
-      commentUser[i] = commentUserJson[i][0].dataValues.nickname;
+      commentUser[i] = commentUserJson[i][0].nickname;
       console.log(commentUser[i]);
     }
 
     //user 객체에서 프로필뽑기
     let commentUserImg = [];
     for (let i = 0; i < commentUserJson.length; i++) {
-      commentUserImg[i] = commentUserJson[i][0].dataValues.imageUrl;
+      commentUserImg[i] = commentUserJson[i][0].imageUrl;
       console.log(commentUserImg[i]);
     }
     console.log(commentUserImg);
-    let profileImg = nic[0].dataValues.imageUrl;
+    let profileImg = nic[0]?.dataValues?.imageUrl || "/default-profile.png";
 
     // postId로 조회수 합산해서 찾기
     let viewCount = 0;
@@ -323,7 +337,7 @@ exports.getWritedPage = async (req, res) => {
       ingredientArr: ingredientArr,
       userId: postvalue[0].dataValues.userId,
       LoginuserId: LoginuserId,
-      nicName: nic[0].dataValues.nickname,
+      nicName: nic[0]?.nickname || "익명",
       postId: req.query.postId,
       comment: comment,
       commentUser: commentUser,
@@ -504,13 +518,17 @@ exports.updatePost = async (req, res) => {
     );
 
     postvalue = [];
-    postvalue = await User.findAll({
-      where: {
-        userId: {
-          [Op.like]: `%${userId}%`,
-        },
-      },
-    });
+    // postvalue = await User.findAll({
+    //   where: {
+    //     userId: {
+    //       [Op.like]: `%${userId}%`,
+    //     },
+    //   },
+    // });
+    const response = await axios.get(
+      `http://user:3000/user-api/user/${userId}`
+    );
+    postvalue = response.data;
     console.log(postvalue);
 
     //postId로 해당게시물 commet 찾기
@@ -526,29 +544,36 @@ exports.updatePost = async (req, res) => {
     //comment쓴 유저 객체
     let commentUserJson = [];
     for (let i = 0; i < comment.length; i++) {
-      commentUserJson[i] = await User.findAll({
-        where: {
-          userId: {
-            [Op.like]: `%${comment[i].dataValues.userId}%`,
-          },
-        },
-      });
+      const commentUserId = comment[i].dataValues.userId;
+      const response = await axios.get(
+        `http://user:3000/user-api/user/${commentUserId}`
+      );
+      const user = response.data;
+      console.log("Query Results:", user);
+      commentUserJson[i] = user;
+      // commentUserJson[i] = await User.findAll({
+      //   where: {
+      //     userId: {
+      //       [Op.like]: `%${comment[i].dataValues.userId}%`,
+      //     },
+      //   },
+      // });
     }
     //찾은 user객체에서 닉네임 뽑기
     let commentUser = [];
     for (let i = 0; i < commentUserJson.length; i++) {
-      commentUser[i] = commentUserJson[i][0].dataValues.nickname;
+      commentUser[i] = commentUserJson[i][0].nickname;
       console.log(commentUser[i]);
     }
 
     //user 객체에서 프로필뽑기
     let commentUserImg = [];
     for (let i = 0; i < commentUserJson.length; i++) {
-      commentUserImg[i] = commentUserJson[i][0].dataValues.imageUrl;
+      commentUserImg[i] = commentUserJson[i][0].imageUrl;
       console.log(commentUserImg[i]);
     }
     console.log(commentUserImg);
-    let profileImg = postvalue[0].dataValues.imageUrl;
+    let profileImg = nic[0]?.dataValues?.imageUrl || "/default-profile.png";
 
     res.render("write/write");
   } catch (err) {
