@@ -99,11 +99,9 @@ app.use((req, res, next) => {
   next();
 });
 
+require("./config/passport.js");
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
   res.locals.loggedIn = req.isAuthenticated();
