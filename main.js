@@ -99,6 +99,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// passport 설정
 require("./config/passport.js");
 app.use(passport.initialize());
 app.use(passport.session());
