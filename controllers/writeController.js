@@ -128,7 +128,7 @@ exports.postWrite = async (req, res) => {
     const currentDate = new Date();
 
     //userId 가져오기
-    let userId = res.locals.currentUser.getDataValue("userId");
+    let userId = res.locals.currentUser.userId;
     //post
     if (req.body) {
       await Post.create({
@@ -249,7 +249,7 @@ exports.getWritedPage = async (req, res) => {
 
     let LoginuserId;
     if (res.locals.currentUser) {
-      LoginuserId = res.locals.currentUser.getDataValue("userId");
+      LoginuserId = res.locals.currentUser.userId; // getDataValue 대신 프로퍼티 접근
     } else {
       LoginuserId = -1;
     }
@@ -358,7 +358,7 @@ exports.postCommentPage = async (req, res) => {
   try {
     console.log(req.body);
     //현재 유저
-    let commentUserId = res.locals.currentUser.getDataValue("userId");
+    let commentUserId = res.locals.currentUser.userId;
     // 현재 날짜 생성
     const currentDate = new Date();
     //comment db에 저장
@@ -455,7 +455,7 @@ exports.updatePost = async (req, res) => {
     //메뉴 id 확인
     console.log(`menu :`, menu[0].dataValues.menuId);
     //userId 가져오기
-    let userId = res.locals.currentUser.getDataValue("userId");
+    let userId = res.locals.currentUser.userId;
 
     // req.body.files가 배열인지 확인하고, 배열이 아닌 경우 배열로 변환
     let files = Array.isArray(req.body.files)
