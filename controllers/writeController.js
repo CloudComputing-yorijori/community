@@ -189,19 +189,19 @@ exports.postWrite = async (req, res) => {
       : [req.body.files];
     console.log(files);
     //imgurl 디비에 저장
-    // if (req.body.files != "") {
-    //   for (let i = 0; i < files.length; i++) {
-    //     //이미지 여러개 처리
-    //     //gcp 경로 + 원본파일이름 =이미지 url
-    //     let img_url = `https://yorizori_post_img.storage.googleapis.com/yorizori_post_img/${files[i]}`;
+    if (req.body.files != "") {
+      for (let i = 0; i < files.length; i++) {
+        //이미지 여러개 처리
+        //gcp 경로 + 원본파일이름 =이미지 url
+        let img_url = `https://yorizori_post_img.storage.googleapis.com/yorizori_post_img/${files[i]}`;
 
-    //     await Image.create({
-    //       //autoincrement 안되어있어서 임의로 넣음
-    //       postId: searchPostId[0].dataValues.postId,
-    //       imageUrl: img_url,
-    //     });
-    //   }
-    // }
+        await Image.create({
+          //autoincrement 안되어있어서 임의로 넣음
+          postId: searchPostId[0].dataValues.postId,
+          imageUrl: img_url,
+        });
+      }
+    }
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
@@ -572,18 +572,18 @@ exports.updatePost = async (req, res) => {
     );
 
     postvalue = [];
-    // postvalue = await User.findAll({
-    //   where: {
-    //     userId: {
-    //       [Op.like]: `%${userId}%`,
-    //     },
-    //   },
-    // });
-    const response = await axios.get(
-      `http://user:3000/user-api/user/${userId}`
-    );
-    postvalue = response.data;
-    console.log(postvalue);
+    postvalue = await User.findAll({
+      where: {
+        userId: {
+          [Op.like]: `%${userId}%`,
+        },
+      },
+    });
+    // const response = await axios.get(
+    //   `http://user:3000/user-api/user/${userId}`
+    // );
+    // postvalue = response.data;
+    // console.log(postvalue);
 
     //postId로 해당게시물 commet 찾기
     let comment = [];
