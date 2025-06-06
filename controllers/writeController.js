@@ -601,6 +601,16 @@ exports.updatePost = async (req, res) => {
     console.log(commentUserImg);
     let profileImg = nic[0]?.dataValues?.imageUrl || "/default-profile.png";
 
+    const searchres = await axios.post(
+      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/index/${postId}`,
+      {
+        title: req.body.title,
+        content: req.body.editordata,
+      }
+    );
+
+    console.log("인덱싱 응답:", searchres.data);
+
     res.render("write/write");
   } catch (err) {
     console.error("Error loading the write page:", err);
@@ -636,6 +646,12 @@ exports.deletePost = async (req, res) => {
     await Post.destroy({
       where: { postId: req.body.postId }, // id가 postId와 일치하는 게시물을 삭제
     });
+
+    const response = await axios.delete(
+      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/index/${postId}`
+    );
+
+    console.log("인덱싱 응답:", response.data);
     res.redirect("/home");
   } catch (err) {}
 };
