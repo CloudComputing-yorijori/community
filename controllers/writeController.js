@@ -6,6 +6,9 @@ const FormData = require("form-data");
 const fs = require("fs");
 const path = require("path");
 
+const IMAGE_SERVICE = process.env.IMAGE_SERVICE;
+const IMAGE_SERVICE_PORT = process.env.IMAGE_SERVICE_PORT;
+
 const db = require("../models"),
   Ingredient = db.ingredient,
   Menu = db.menu,
@@ -89,6 +92,36 @@ exports.getMenu = async (req, res) => {
   }
 };
 
+// 이미지 서비스로 이미지 전송
+async function sendImageToImageService(file, postId) {
+  try {
+    const formData = new FormData();
+
+    formData.append("file", file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype,
+    });
+
+    formData.append("postId", postId);
+
+    const response = await axios.post(
+      `http://${IMAGE_SERVICE}:${IMAGE_SERVICE_PORT}/image/uploadPostImage`,
+      formData,
+      {
+        headers: formData.getHeaders(),
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      }
+    );
+
+    // response.data 전체 반환
+    return response.data;
+  } catch (err) {
+    console.error("이미지 전송 실패:", err.message);
+    return null;
+  }
+}
+
 //이미지 gcp 로 보내고 url 반환
 //받은 url 이미지 db에 담고 client로 넘김
 // 이제는 그냥 이미지를 가져오는 함수
@@ -105,36 +138,6 @@ exports.postImage = async (req, res) => {
     res.status(500).json({ message: "서버 오류" });
   }
 };
-
-// 이미지 서비스로 이미지 전송
-async function sendImageToImageService(file, postId) {
-  try {
-    const formData = new FormData();
-
-    formData.append("file", file.buffer, {
-      filename: file.originalname,
-      contentType: file.mimetype,
-    });
-
-    formData.append("postId", postId);
-
-    const response = await axios.post(
-      `http://${IMAGE_SERVICE}:${IMAGE_SERVICE_PORT}/upload`,
-      formData,
-      {
-        headers: formData.getHeaders(),
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-      }
-    );
-
-    // response.data 전체 반환
-    return response.data;
-  } catch (err) {
-    console.error("이미지 전송 실패:", err.message);
-    return null;
-  }
-}
 
 // 게시글 post
 exports.postWrite = async (req, res) => {
@@ -202,7 +205,9 @@ exports.postWrite = async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-        const response = await sendImageToImageService(file, searchPostId);
+        const postId = searchPostId[0].dataValues.postId;
+        const response = await sendImageToImageService(file, postId);
+
         console.log(response);
       }
     }
@@ -304,19 +309,19 @@ exports.getWritedPage = async (req, res) => {
     }
 
     //postId로 post 닉네임 찾기
-    // let nic = await User.findAll({
-    //   where: {
-    //     userId: {
-    //       [Op.like]: `%${postvalue[0].dataValues.userId}%`,
-    //     },
-    //   },
-    // });
-    const nicUserId = postvalue[0].dataValues.userId;
-    const response = await axios.get(
-      `http://user:3000/user-api/user/${nicUserId}`
-    );
-    const nic = response.data;
-    console.log("Query Results:", nic);
+    let nic = await User.findAll({
+      where: {
+        userId: {
+          [Op.like]: `%${postvalue[0].dataValues.userId}%`,
+        },
+      },
+    });
+    // const nicUserId = postvalue[0].dataValues.userId;
+    // const response = await axios.get(
+    //   `http://user:3000/user-api/user/${nicUserId}`
+    // );
+    // const nic = response.data;
+    // console.log("Query Results:", nic);
 
     //postId로 해당게시물 commet 찾기
     let comment = [];
@@ -331,20 +336,20 @@ exports.getWritedPage = async (req, res) => {
     //comment쓴 유저 객체
     let commentUserJson = [];
     for (let i = 0; i < comment.length; i++) {
-      const commentUserId = comment[i].dataValues.userId;
-      const response = await axios.get(
-        `http://user:3000/user-api/user/${commentUserId}`
-      );
-      const user = response.data;
-      console.log("Query Results:", user);
-      commentUserJson[i] = user;
-      // commentUserJson[i] = await User.findAll({
-      //   where: {
-      //     userId: {
-      //       [Op.like]: `%${comment[i].dataValues.userId}%`,
-      //     },
-      //   },
-      // });
+      // const commentUserId = comment[i].dataValues.userId;
+      // const response = await axios.get(
+      //   `http://user:3000/user-api/user/${commentUserId}`
+      // );
+      // const user = response.data;
+      // console.log("Query Results:", user);
+      // commentUserJson[i] = user;
+      commentUserJson[i] = await User.findAll({
+        where: {
+          userId: {
+            [Op.like]: `%${comment[i].dataValues.userId}%`,
+          },
+        },
+      });
     }
     //찾은 user객체에서 닉네임 뽑기
     let commentUser = [];
@@ -594,19 +599,19 @@ exports.updatePost = async (req, res) => {
     let commentUserJson = [];
     for (let i = 0; i < comment.length; i++) {
       const commentUserId = comment[i].dataValues.userId;
-      const response = await axios.get(
-        `http://user:3000/user-api/user/${commentUserId}`
-      );
-      const user = response.data;
+      // const response = await axios.get(
+      //   `http://user:3000/user-api/user/${commentUserId}`
+      // );
+      // const user = response.data;
       console.log("Query Results:", user);
-      commentUserJson[i] = user;
-      // commentUserJson[i] = await User.findAll({
-      //   where: {
-      //     userId: {
-      //       [Op.like]: `%${comment[i].dataValues.userId}%`,
-      //     },
-      //   },
-      // });
+      //commentUserJson[i] = user;
+      commentUserJson[i] = await User.findAll({
+        where: {
+          userId: {
+            [Op.like]: `%${comment[i].dataValues.userId}%`,
+          },
+        },
+      });
     }
     //찾은 user객체에서 닉네임 뽑기
     let commentUser = [];
