@@ -2,6 +2,10 @@ const { render } = require("ejs");
 const { Where } = require("sequelize/lib/utils");
 const axios = require("axios");
 
+const FormData = require("form-data");
+const fs = require("fs");
+const path = require("path");
+
 const db = require("../models"),
   Ingredient = db.ingredient,
   Menu = db.menu,
@@ -89,19 +93,31 @@ exports.getMenu = async (req, res) => {
 //받은 url 이미지 db에 담고 client로 넘김
 exports.postImage = async (req, res) => {
   try {
-    console.log(req.file);
-    //이미지url 담아올 변수
-    let imgurl = "";
-    if (req.file != undefined) {
-      imgurl = req.file.path;
+    if (!req.file) {
+      return res.status(400).json({ message: "파일이 없습니다." });
     }
-    console.log("전달할 url", JSON.stringify(imgurl));
-    res.json({ url: imgurl }); //json 객체로 넘긴다.
-  } catch (err) {
-    console.error("Error loading the write page:", err);
-    res.status(500).send({
-      message: "Error loading the write page",
+
+    const formData = new FormData();
+
+    // GCS로 업로드된 파일은 로컬에 없을 수 있으므로, stream 형태로 처리
+    const fileStream = fs.createReadStream(req.file.path);
+
+    formData.append("image", fileStream, {
+      filename: path.basename(req.file.path),
+      contentType: req.file.mimetype,
     });
+
+    const response = await axios.post(IMAGE_SERVICE, formData, {
+      headers: formData.getHeaders(),
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+    });
+
+    console.log("외부 서버 응답:", response.data);
+    res.json(response.data); // 클라이언트에게 전달
+  } catch (err) {
+    console.error("이미지 포워딩 실패:", err);
+    res.status(500).json({ message: "이미지 포워딩 실패" });
   }
 };
 
@@ -189,6 +205,16 @@ exports.postWrite = async (req, res) => {
         ingredientId: ingredientArr[0].dataValues.ingredientId,
         postId: searchPostId[0].dataValues.postId,
       });
+
+      const response = await axios.post(
+        `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/index`,
+        {
+          title: req.body.title,
+          content: req.body.editordata,
+        }
+      );
+
+      console.log("인덱싱 응답:", response.data);
     }
     res.render("write/write");
   } catch (err) {
