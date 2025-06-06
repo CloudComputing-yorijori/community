@@ -91,35 +91,50 @@ exports.getMenu = async (req, res) => {
 
 //이미지 gcp 로 보내고 url 반환
 //받은 url 이미지 db에 담고 client로 넘김
+// 이제는 그냥 이미지를 가져오는 함수
 exports.postImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "파일이 없습니다." });
     }
 
-    const formData = new FormData();
-
-    // GCS로 업로드된 파일은 로컬에 없을 수 있으므로, stream 형태로 처리
-    const fileStream = fs.createReadStream(req.file.path);
-
-    formData.append("image", fileStream, {
-      filename: path.basename(req.file.path),
-      contentType: req.file.mimetype,
-    });
-
-    const response = await axios.post(IMAGE_SERVICE, formData, {
-      headers: formData.getHeaders(),
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-    });
-
-    console.log("외부 서버 응답:", response.data);
-    res.json(response.data); // 클라이언트에게 전달
+    const imgurl = req.file.path; // GCS에 저장된 이미지의 공개 경로
+    res.json({ url: imgurl }); // 클라이언트에 응답
   } catch (err) {
-    console.error("이미지 포워딩 실패:", err);
-    res.status(500).json({ message: "이미지 포워딩 실패" });
+    console.error("이미지 업로드 에러:", err);
+    res.status(500).json({ message: "서버 오류" });
   }
 };
+
+// 이미지 서비스로 이미지 전송
+async function sendImageToImageService(file, postId) {
+  try {
+    const formData = new FormData();
+
+    formData.append("file", file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype,
+    });
+
+    formData.append("postId", postId);
+
+    const response = await axios.post(
+      `http://${IMAGE_SERVICE}:${IMAGE_SERVICE_PORT}/upload`,
+      formData,
+      {
+        headers: formData.getHeaders(),
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      }
+    );
+
+    // response.data 전체 반환
+    return response.data;
+  } catch (err) {
+    console.error("이미지 전송 실패:", err.message);
+    return null;
+  }
+}
 
 // 게시글 post
 exports.postWrite = async (req, res) => {
@@ -171,19 +186,27 @@ exports.postWrite = async (req, res) => {
       : [req.body.files];
     console.log(files);
     //imgurl 디비에 저장
-    if (req.body.files != "") {
-      for (let i = 0; i < files.length; i++) {
-        //이미지 여러개 처리
-        //gcp 경로 + 원본파일이름 =이미지 url
-        let img_url = `https://yorizori_post_img.storage.googleapis.com/yorizori_post_img/${files[i]}`;
+    // if (req.body.files != "") {
+    //   for (let i = 0; i < files.length; i++) {
+    //     //이미지 여러개 처리
+    //     //gcp 경로 + 원본파일이름 =이미지 url
+    //     let img_url = `https://yorizori_post_img.storage.googleapis.com/yorizori_post_img/${files[i]}`;
 
-        await Image.create({
-          //autoincrement 안되어있어서 임의로 넣음
-          postId: searchPostId[0].dataValues.postId,
-          imageUrl: img_url,
-        });
+    //     await Image.create({
+    //       //autoincrement 안되어있어서 임의로 넣음
+    //       postId: searchPostId[0].dataValues.postId,
+    //       imageUrl: img_url,
+    //     });
+    //   }
+    // }
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const response = await sendImageToImageService(file, searchPostId);
+        console.log(response);
       }
     }
+
     //post된 ingredientId 찾아서 메뉴 db에 넣기
     let ingredient = Array.isArray(req.body.ingredi)
       ? req.body.ingredi
