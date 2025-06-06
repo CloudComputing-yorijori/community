@@ -4,6 +4,11 @@ const db = require("../models/index"),
 
 const { Sequelize, sequelize } = require("../models");
 
+const axios = require("axios");
+
+const SEARCH_SERVICE = process.env.SEARCH_SERVICE;
+const SEARCH_SERVICE_PORT = process.env.SEARCH_SERVICE_PORT;
+
 // 많이 본 & 최신 게시글 (로그인 X)
 exports.getNoLoginRecommendPosts = async (req, res) => {
   const userId = req.user?.userId || ""; // 사용자 id 받아오기
@@ -87,71 +92,71 @@ exports.getLoginRecommendPosts = async (req, res) => {
   const userId = req.user.userId; // 사용자 id 받아오기
 
   try {
-    // // 1. 많이 본 게시글 3개 가져오기
-    // const viewPosts = await db.post.findAll({
-    //     include: [
-    //         {
-    //             model: db.ingredient,
-    //             through: { attributes: [] }
-    //         },
-    //         {
-    //             model: db.image,
-    //             as: 'images'
-    //         },
-    //         {
-    //             model: db.view,
-    //             attributes: ['views']
-    //         }
-    //     ],
-    //     order: [[db.view, 'views', 'DESC']]
-    // });
+    // 1. 많이 본 게시글 3개 가져오기
+    const viewPosts = await db.post.findAll({
+      include: [
+        {
+          model: db.ingredient,
+          through: { attributes: [] },
+        },
+        {
+          model: db.image,
+          as: "images",
+        },
+        {
+          model: db.view,
+          attributes: ["views"],
+        },
+      ],
+      order: [[db.view, "views", "DESC"]],
+    });
 
-    // const viewPostIds = viewPosts.map(post => post.postId);
+    const viewPostIds = viewPosts.map((post) => post.postId);
 
-    // const viewQuery = `
-    //     SELECT p.postId,
-    //            GROUP_CONCAT(DISTINCT i.ingredientName ORDER BY i.ingredientName SEPARATOR ', ') AS ingredients
-    //     FROM posts p
-    //     LEFT JOIN usages pi ON p.postId = pi.postId
-    //     LEFT JOIN ingredients i ON pi.ingredientId = i.ingredientId
-    //     WHERE p.postId IN (:viewPostIds)
-    //     GROUP BY p.postId;
-    // `;
+    const viewQuery = `
+        SELECT p.postId,
+               GROUP_CONCAT(DISTINCT i.ingredientName ORDER BY i.ingredientName SEPARATOR ', ') AS ingredients
+        FROM posts p
+        LEFT JOIN usages pi ON p.postId = pi.postId
+        LEFT JOIN ingredients i ON pi.ingredientId = i.ingredientId
+        WHERE p.postId IN (:viewPostIds)
+        GROUP BY p.postId;
+    `;
 
-    // const viewIngredientResults = await sequelize.query(viewQuery, {
-    //     replacements: { viewPostIds },
-    //     type: Sequelize.QueryTypes.SELECT
-    // });
+    const viewIngredientResults = await sequelize.query(viewQuery, {
+      replacements: { viewPostIds },
+      type: Sequelize.QueryTypes.SELECT,
+    });
 
-    // const viewIngredientMap = viewIngredientResults.reduce((map, item) => {
-    //     map[item.postId] = item.ingredients;
-    //     return map;
-    // }, {});
+    const viewIngredientMap = viewIngredientResults.reduce((map, item) => {
+      map[item.postId] = item.ingredients;
+      return map;
+    }, {});
 
-    // const viewPostsWithIngredients = viewPosts.map(post => ({
-    //     ...post.get({ plain: true }),
-    //     ingredients: viewIngredientMap[post.postId] || ''
-    // }));
+    const viewPostsWithIngredients = viewPosts.map((post) => ({
+      ...post.get({ plain: true }),
+      ingredients: viewIngredientMap[post.postId] || "",
+    }));
 
-    // // 2. 사용자가 클릭한 게시글 및 저장한 게시글 ID 조회
-    // const [viewedPosts, savedPosts] = await Promise.all([
-    //     db.view.findAll({
-    //         where: { userId },
-    //         attributes: ['postId']
-    //     }),
-    //     db.save.findAll({
-    //         where: { userId },
-    //         attributes: ['postId']
-    //     })
-    // ]);
+    // 2. 사용자가 클릭한 게시글 및 저장한 게시글 ID 조회
+    const [viewedPosts, savedPosts] = await Promise.all([
+      db.view.findAll({
+        where: { userId },
+        attributes: ["postId"],
+      }),
+      db.save.findAll({
+        where: { userId },
+        attributes: ["postId"],
+      }),
+    ]);
 
-    // const savedPostIds = savedPosts.map((save) => save.postId);
-    // const uniquePostIds = [
-    //   ...new Set([
-    //     ...viewedPosts.map((v) => v.postId),
-    //     ...savedPosts.map((s) => s.postId),
-    //   ]),
-    // ];
+    const savedPostIds = savedPosts.map((save) => save.postId);
+    const uniquePostIds = [
+      ...new Set([
+        ...viewedPosts.map((v) => v.postId),
+        ...savedPosts.map((s) => s.postId),
+      ]),
+    ];
 
     const response = await axios.get(
       `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/recommend/${userId}`
@@ -197,7 +202,7 @@ exports.getLoginRecommendPosts = async (req, res) => {
               },
             },
           ],
-          postId: { [Op.notIn]: postIds }, // 사용자가 보거나 저장하지 않은 게시글 중 추천
+          postId: { [Op.notIn]: savedPostIds }, // 사용자가 보거나 저장하지 않은 게시글 중 추천
         },
         include: [
           {

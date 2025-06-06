@@ -99,10 +99,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// passport 설정
+// passport 설정(5.1)
 // require("./config/passport.js");
 // app.use(passport.initialize());
 // app.use(passport.session());
+
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(User.createStrategy());

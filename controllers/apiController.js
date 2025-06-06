@@ -7,6 +7,7 @@ const { Sequelize, sequelize } = require("../models");
 
 exports.getPostsByUserId = async (req, res) => {
   const userId = req.params.userId;
+
   try {
     const query = `
       SELECT p.postId, p.title, p.userId, i.imageUrl
@@ -16,6 +17,25 @@ exports.getPostsByUserId = async (req, res) => {
     `;
     const posts = await sequelize.query(query, {
       replacements: { userId },
+      type: Sequelize.QueryTypes.SELECT,
+    });
+    res.json(posts);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getPostsByPostId = async (req, res) => {
+  const postId = req.params.postId;
+  try {
+    const query = `
+      SELECT p.postId, p.title, p.userId, p.date
+      FROM posts p
+      WHERE p.post = :postId;
+    `;
+    const posts = await sequelize.query(query, {
+      replacements: { postId },
       type: Sequelize.QueryTypes.SELECT,
     });
     res.json(posts);
