@@ -10,7 +10,7 @@ exports.fetchSearchResults = async (req, res) => {
   const pageSize = 5;
 
   if (!userId) {
-    return res.status(400).render("recipe/searchResults", {
+    return res.status(400).render("recipe/searchResult", {
       result_posts: [],
       totalResults: 0,
       showCategoryBar: true,
@@ -40,7 +40,7 @@ exports.fetchSearchResults = async (req, res) => {
         ingredients: hit._source.ingredients || "",
       }));
 
-    res.render("recipe/searchResults", {
+    res.render("recipe/searchResult", {
       result_posts: paginatedPosts,
       totalResults,
       showCategoryBar: true,
@@ -52,7 +52,7 @@ exports.fetchSearchResults = async (req, res) => {
     });
   } catch (error) {
     console.error("검색 서비스 요청 실패:", error.message);
-    res.status(500).render("recipe/searchResults", {
+    res.status(500).render("recipe/searchResult", {
       result_posts: [],
       totalResults: 0,
       showCategoryBar: true,
