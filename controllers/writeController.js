@@ -129,15 +129,19 @@ async function sendImageToImageService(file, postId) {
 // 이제는 그냥 이미지를 가져오는 함수
 exports.postImage = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "파일이 없습니다." });
+    console.log(req.file);
+    //이미지url 담아올 변수
+    let imgurl = "";
+    if (req.file != undefined) {
+      imgurl = req.file.path;
     }
-
-    const imgurl = req.file.path; // GCS에 저장된 이미지의 공개 경로
-    res.json({ url: imgurl }); // 클라이언트에 응답
+    console.log("전달할 url", JSON.stringify(imgurl));
+    res.json({ url: imgurl }); //json 객체로 넘긴다.
   } catch (err) {
-    console.error("이미지 업로드 에러:", err);
-    res.status(500).json({ message: "서버 오류" });
+    console.error("Error loading the write page:", err);
+    res.status(500).send({
+      message: "Error loading the write page",
+    });
   }
 };
 
