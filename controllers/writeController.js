@@ -8,6 +8,8 @@ const path = require("path");
 
 const IMAGE_SERVICE = process.env.IMAGE_SERVICE;
 const IMAGE_SERVICE_PORT = process.env.IMAGE_SERVICE_PORT;
+const SEARCH_SERVICE = process.env.SEARCH_SERVICE;
+const SEARCH_SERVICE_PORT = process.env.SEARCH_SERVICE_PORT;
 
 const db = require("../models"),
   Ingredient = db.ingredient,

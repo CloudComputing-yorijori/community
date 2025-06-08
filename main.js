@@ -129,12 +129,16 @@ app.use((req, res, next) => {
 const postRouter = require("./routers/postRouter.js");
 const writeRouter = require("./routers/writeRouter.js");
 const apiRouter = require("./routers/apiRouter.js");
+const searchRouter = require("./routers/searchRouter.js");
 
 // post 접근
 app.use("/posts", postRouter);
 //write 접근
 app.use("/write", writeRouter);
+// api 접근
 app.use("/community-api", apiRouter);
+// search 접근
+app.use("/search", searchRouter);
 //app.use("/image", imageRouter);
 
 // 서버 실행
