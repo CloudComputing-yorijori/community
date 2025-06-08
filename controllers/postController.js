@@ -158,11 +158,21 @@ exports.getLoginRecommendPosts = async (req, res) => {
       ]),
     ];
 
-    const response = await axios.get(
-      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/recommend/${userId}`
-    );
-    const postIds = response.data;
-    console.log("Query Results:", postIds);
+    try {
+      const response = await axios.get(
+        `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/recommend/${userId}`
+      );
+      postIds = response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        console.log("400 에러 발생: 추천 결과 없음");
+        postIds = [];
+      } else {
+        // 다른 에러는 로그로 확인
+        console.error("에러 발생:", error);
+        throw error; // 필요에 따라 다시 던질 수 있음
+      }
+    }
 
     // 3. 추천 게시글 9개 가져오기
     let recommendPostsWithIngredients = [];
@@ -540,6 +550,10 @@ exports.postSave = async (req, res) => {
 
   try {
     await db.save.create({ userId, postId });
+    const response = await axios.get(
+      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/recommend/${userId}`
+    );
+    console.log("요청 결과: ", response.data);
     res.json({ success: true });
   } catch (error) {
     console.error(error);

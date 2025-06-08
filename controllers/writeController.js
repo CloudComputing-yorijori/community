@@ -241,10 +241,11 @@ exports.postWrite = async (req, res) => {
       });
 
       const response = await axios.post(
-        `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/index`,
+        `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index`,
         {
           title: req.body.title,
           content: req.body.editordata,
+          postId: searchPostId,
         }
       );
 
@@ -360,15 +361,14 @@ exports.getWritedPage = async (req, res) => {
     //찾은 user객체에서 닉네임 뽑기
     let commentUser = [];
     for (let i = 0; i < commentUserJson.length; i++) {
-      commentUser[i] = commentUserJson[i][0].nickname;
+      commentUser[i] = commentUserJson[i]?.[0]?.nickname || "익명";
       console.log(commentUser[i]);
     }
-
     //user 객체에서 프로필뽑기
     let commentUserImg = [];
     for (let i = 0; i < commentUserJson.length; i++) {
-      commentUserImg[i] = commentUserJson[i][0].imageUrl;
-      console.log(commentUserImg[i]);
+      commentUserImg[i] =
+        commentUserJson[i]?.[0]?.imageUrl || "/default-profile.png";
     }
     console.log(commentUserImg);
     let profileImg = nic[0]?.dataValues?.imageUrl || "/default-profile.png";
@@ -397,7 +397,7 @@ exports.getWritedPage = async (req, res) => {
       ingredientArr: ingredientArr,
       userId: postvalue[0].dataValues.userId,
       LoginuserId: LoginuserId,
-      nicName: nic[0]?.nickname || "익명",
+      nicName: nic?.[0]?.nickname || "익명",
       postId: req.query.postId,
       comment: comment,
       commentUser: commentUser,
@@ -636,7 +636,7 @@ exports.updatePost = async (req, res) => {
     let profileImg = nic[0]?.dataValues?.imageUrl || "/default-profile.png";
 
     const searchres = await axios.post(
-      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/index/${postId}`,
+      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index/${postId}`,
       {
         title: req.body.title,
         content: req.body.editordata,
@@ -682,7 +682,7 @@ exports.deletePost = async (req, res) => {
     });
 
     const response = await axios.delete(
-      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search/index/${postId}`
+      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index/${postId}`
     );
 
     console.log("인덱싱 응답:", response.data);
