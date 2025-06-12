@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: 20221174/yorijori_db:3.0
+          image: 20221174/yorijori_db:3.1
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: root
