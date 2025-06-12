@@ -110,8 +110,8 @@ INSERT INTO comments (content, createdAt, postId, userId) VALUES
 ('Thank you!', NOW(), 1, 1);
 
 INSERT INTO images (postId, imageUrl) VALUES
-(1, 'https://example.com/image1.jpg'),
-(2, 'https://example.com/image2.jpg');
+(1, 'https://example.com'),
+(2, 'https://example.com');
 
 INSERT INTO saves (userId, postId) VALUES
 (1, 2),
@@ -121,5 +121,5 @@ INSERT INTO views (userId, postId, views) VALUES
 (1, 1, 5),
 (2, 2, 3);
 
-INSERT INTO Ingredient (ingredientName, category)
+INSERT INTO ingredients (ingredientName, category)
 VALUES ('Tomato', 'Vegetable');
