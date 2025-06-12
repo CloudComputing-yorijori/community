@@ -121,3 +121,5 @@ INSERT INTO views (userId, postId, views) VALUES
 (1, 1, 5),
 (2, 2, 3);
 
+INSERT INTO Ingredient (ingredientName, category)
+VALUES ('Tomato', 'Vegetable');
