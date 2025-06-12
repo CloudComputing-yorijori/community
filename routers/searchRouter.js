@@ -4,5 +4,6 @@ const router = express.Router();
 const searchController = require("../controllers/searchController");
 
 router.get("/", searchController.fetchSearchResults);
+router.get("/auto", searchController.fetchAuto);
 
 module.exports = router;
