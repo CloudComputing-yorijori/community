@@ -240,18 +240,17 @@ exports.postWrite = async (req, res) => {
         postId: searchPostId[0].dataValues.postId,
       });
 
-      const response = await axios.post(
-        `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index`,
-        {
-          title: req.body.title,
-          content: req.body.editordata,
-          postId: searchPostId,
-        }
-      );
-
-      console.log("인덱싱 응답:", response.data);
+      // const response = await axios.post(
+      //   `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index`,
+      //   {
+      //     title: req.body.title,
+      //     content: req.body.editordata,
+      //     postId: searchPostId,
+      //   }
+      // );
+      // console.log("인덱싱 응답:", response.data);
     }
-    res.render("write/write");
+    res.redirect("/auth/mypage");
   } catch (err) {
     console.error("Error loading the write page:", err);
     res.status(500).send({
@@ -635,15 +634,14 @@ exports.updatePost = async (req, res) => {
     console.log(commentUserImg);
     let profileImg = nic[0]?.dataValues?.imageUrl || "/default-profile.png";
 
-    const searchres = await axios.post(
-      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index/${postId}`,
-      {
-        title: req.body.title,
-        content: req.body.editordata,
-      }
-    );
-
-    console.log("인덱싱 응답:", searchres.data);
+    // const searchres = await axios.post(
+    //   `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index/${postId}`,
+    //   {
+    //     title: req.body.title,
+    //     content: req.body.editordata,
+    //   }
+    // );
+    // console.log("인덱싱 응답:", searchres.data);
 
     res.render("write/write");
   } catch (err) {
@@ -681,11 +679,10 @@ exports.deletePost = async (req, res) => {
       where: { postId: req.body.postId }, // id가 postId와 일치하는 게시물을 삭제
     });
 
-    const response = await axios.delete(
-      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index/${postId}`
-    );
-
-    console.log("인덱싱 응답:", response.data);
+    // const response = await axios.delete(
+    //   `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/search-service/index/${postId}`
+    // );
+    // console.log("인덱싱 응답:", response.data);
     res.redirect("/home");
   } catch (err) {}
 };
