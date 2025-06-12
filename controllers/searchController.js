@@ -127,3 +127,20 @@ exports.fetchSearchResults = async (req, res) => {
     });
   }
 };
+
+exports.fetchAuto = async (req, res) => {
+  try {
+    const response = await axios.get(
+      `http://${SEARCH_SERVICE}:${SEARCH_SERVICE_PORT}/autocomplete`
+    );
+  } catch (error) {
+    if (error.response && error.response.status === 400) {
+      console.log("400 에러 발생: 자동 완성 결과 없음");
+      postIds = [];
+    } else {
+      // 다른 에러는 로그로 확인
+      console.error("에러 발생:", error);
+      throw error; // 필요에 따라 다시 던질 수 있음
+    }
+  }
+};
