@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: community
-          image: 20221174/yorijori_community:4.7 # 4.7은 passport 설정 한 것
+          image: 20221174/yorijori_community:latest
           env:
             - name: DB_HOST
               value: mysql
